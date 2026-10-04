@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#111111">
+<link rel="manifest" href="manifest.json">
+<title>Nawyk — Beta</title>
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--text:#111;--muted:#777;--line:#e8e8eb;--accent:#111;--green:#18a66a;--orange:#f59e0b;--blue:#4f7cff;--red:#ef4444}
+*{box-sizing:border-box}body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","Segoe UI",sans-serif;background:var(--bg);color:var(--text)}
+.app{max-width:520px;margin:auto;min-height:100vh;padding-bottom:88px}.top{padding:22px 18px 10px;display:flex;justify-content:space-between;align-items:center}.brand{font-size:26px;font-weight:800;letter-spacing:-.8px}.beta{font-size:11px;padding:5px 8px;border:1px solid #ddd;border-radius:999px;color:#666}
+main{padding:8px 16px}.view{display:none}.view.active{display:block}
+h1{font-size:30px;letter-spacing:-1px;margin:12px 0 5px}.sub{color:var(--muted);margin-bottom:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:22px;padding:18px;margin:12px 0;box-shadow:0 3px 15px rgba(0,0,0,.03)}
+.score{display:flex;align-items:center;gap:18px}.ring{width:108px;height:108px;border-radius:50%;display:grid;place-items:center;background:conic-gradient(var(--accent) calc(var(--p)*1%),#e9e9ec 0);position:relative}.ring:after{content:"";position:absolute;inset:9px;background:white;border-radius:50%}.ring b{position:relative;z-index:1;font-size:28px}.scoretxt h2{margin:0 0 5px;font-size:20px}.scoretxt p{margin:0;color:var(--muted);font-size:14px}
+.section-title{display:flex;justify-content:space-between;align-items:center;margin:24px 2px 10px}.section-title h2{font-size:18px;margin:0}.section-title span{color:var(--muted);font-size:13px}
+.habit{display:flex;align-items:center;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}.habit:last-child{border:0}.ico{font-size:22px;width:32px}.habitname{flex:1}.habitname b{display:block;font-size:15px}.habitname small{color:var(--muted)}button{border:0;font:inherit;cursor:pointer}.check{width:34px;height:34px;border-radius:12px;background:#f0f0f2;font-size:18px}.check.done{background:var(--accent);color:#fff}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stat{background:#fafafa;border-radius:16px;padding:14px}.stat b{display:block;font-size:22px}.stat span{color:var(--muted);font-size:12px}
+.chart{height:150px;display:flex;align-items:end;gap:8px;padding:18px 4px 8px;border-bottom:1px solid var(--line)}.barwrap{flex:1;height:100%;display:flex;flex-direction:column;justify-content:end;align-items:center;gap:5px}.bar{width:100%;max-width:30px;border-radius:8px 8px 2px 2px;background:#111;min-height:4px}.barwrap small{font-size:10px;color:#888}
+.money{font-size:42px;font-weight:850;letter-spacing:-2px}.progress{height:10px;background:#eee;border-radius:99px;overflow:hidden}.progress>i{display:block;height:100%;background:var(--green);border-radius:99px}.moneyrow{display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid var(--line)}.moneyrow:last-child{border:0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}.pill{padding:10px 13px;border-radius:13px;background:#f1f1f3}.primary{background:#111;color:white}.danger{color:#d33}
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);max-width:520px;width:100%;background:rgba(255,255,255,.94);backdrop-filter:blur(14px);border-top:1px solid #ddd;display:grid;grid-template-columns:repeat(4,1fr);padding:9px 8px calc(9px + env(safe-area-inset-bottom));z-index:10}.nav button{background:none;color:#777;font-size:11px}.nav button b{display:block;font-size:21px;margin-bottom:2px}.nav button.active{color:#111;font-weight:700}
+label{display:block;color:#666;font-size:12px;margin:12px 0 5px}input,select{width:100%;padding:13px;border:1px solid #ddd;border-radius:13px;background:#fff;font:inherit}form .primary{margin-top:14px;padding:13px 16px;border-radius:13px}
+.note{font-size:12px;color:#777;line-height:1.45}.tag{display:inline-block;padding:5px 8px;background:#f0f0f2;border-radius:8px;font-size:11px;margin:3px}
+</style>
+</head>
+<body>
+<div class="app">
+<header class="top"><div class="brand">nawyk</div><div class="beta">BETA</div></header>
+<main>
+<section id="home" class="view active">
+<h1>Dzisiaj</h1><div class="sub" id="date"></div>
+<div class="card score"><div class="ring" id="ring" style="--p:0"><b id="score">0</b></div><div class="scoretxt"><h2 id="scoreTitle">Zaczynamy</h2><p id="scoreDesc">Wykonaj swoje pierwsze nawyki.</p></div></div>
+<div class="stats"><div class="stat"><b id="steps">0</b><span>kroki</span></div><div class="stat"><b id="saved">0 zł</b><span>oszczędności dziś</span></div></div>
+<div class="section-title"><h2>Twoje nawyki</h2><span id="doneCount">0/0</span></div>
+<div class="card" id="habitList"></div>
+<div class="section-title"><h2>Twój trend</h2><span>7 dni</span></div>
+<div class="card"><div class="chart" id="chart"></div></div>
+</section>
+
+<section id="habits" class="view">
+<h1>Nawyki</h1><div class="sub">Dodawaj zachowania, które budują Twój wynik.</div>
+<div class="card">
+<form id="habitForm">
+<label>Nazwa nawyku</label><input id="hName" placeholder="np. 30 min czytania" required>
+<label>Kategoria</label><select id="hCat"><option>FOCUS</option><option>BODY</option><option>DISCIPLINE</option></select>
+<label>Wpływ na Score (1–20)</label><input id="hWeight" type="number" min="1" max="20" value="8">
+<label>Oszczędność, jeśli go wykonasz (zł)</label><input id="hMoney" type="number" min="0" step="0.01" value="0">
+<button class="primary" type="submit">+ Dodaj nawyk</button>
+</form>
+</div>
+<div class="card" id="allHabits"></div>
+</section>
+
+<section id="money" class="view">
+<h1>Oszczędności</h1><div class="sub">Każda dobra decyzja może przybliżać Cię do celu.</div>
+<div class="card"><div class="money" id="monthMoney">0 zł</div><p class="sub">zaoszczędzone w tym miesiącu</p>
+<div class="progress"><i id="goalBar" style="width:0%"></i></div><div class="moneyrow"><span>Cel</span><b id="goalLabel">0 / 1000 zł</b></div></div>
+<div class="card"><div class="section-title"><h2>Ustaw cel</h2></div><label>Nazwa celu</label><input id="goalName" placeholder="np. Nowe słuchawki"><label>Kwota</label><input id="goalAmount" type="number" value="1000"><button class="primary" style="margin-top:12px;padding:12px 16px;border-radius:12px" onclick="saveGoal()">Zapisz cel</button></div>
+<div class="card"><h2 style="font-size:18px">Skąd oszczędzasz?</h2><div id="moneyBreakdown"></div></div>
+<p class="note">Kwoty są deklarowane przez użytkownika. Aplikacja nie pobiera danych bankowych.</p>
+</section>
+
+<section id="profile" class="view">
+<h1>Twój system</h1><div class="sub">Beta aplikacji „nawyk”.</div>
+<div class="card"><h2 style="margin-top:0">Kroki</h2><p class="note">W tej becie możesz wpisać liczbę kroków ręcznie. W wersji iPhone dodamy HealthKit, żeby kroki z iPhone’a/Apple Watch pobierały się automatycznie.</p><label>Dzisiejsze kroki</label><input id="stepInput" type="number" min="0" placeholder="np. 8500"><button class="primary" style="margin-top:12px;padding:12px 16px;border-radius:12px" onclick="saveSteps()">Zapisz kroki</button></div>
+<div class="card"><h2 style="margin-top:0">Twój system punktów</h2><span class="tag">FOCUS</span><span class="tag">BODY</span><span class="tag">DISCIPLINE</span><p class="note">Score jest wskaźnikiem wykonania nawyków i aktywności. Nie jest pomiarem poziomu dopaminy.</p></div>
+<div class="card actions"><button class="pill" onclick="resetData()">Wyczyść dane beta</button></div>
+</section>
+</main>
+<nav class="nav">
+<button class="active" onclick="show('home',this)"><b>⌂</b>Dzisiaj</button>
+<button onclick="show('habits',this)"><b>✓</b>Nawyki</button>
+<button onclick="show('money',this)"><b>₿</b>Oszczędności</button>
+<button onclick="show('profile',this)"><b>⚙</b>Profil</button>
+</nav>
+</div>
+<script>
+const KEY="nawyk_beta_v1";
+const defaultHabits=[
+{id:1,icon:"🍫",name:"Bez słodyczy",cat:"BODY",weight:10,money:10},
+{id:2,icon:"🍔",name:"Bez fast foodu",cat:"BODY",weight:12,money:35},
+{id:3,icon:"📱",name:"Ograniczyłem social media",cat:"FOCUS",weight:9,money:0},
+{id:4,icon:"📚",name:"20 min nauki / czytania",cat:"FOCUS",weight:8,money:0},
+{id:5,icon:"🚶",name:"30 min ruchu",cat:"BODY",weight:8,money:0},
+{id:6,icon:"😴",name:"Sen min. 7 h",cat:"BODY",weight:10,money:0},
+{id:7,icon:"🧘",name:"10 min wyciszenia",cat:"FOCUS",weight:6,money:0},
+{id:8,icon:"🌅",name:"Bez telefonu 30 min po przebudzeniu",cat:"DISCIPLINE",weight:7,money:0},
+{id:9,icon:"🌙",name:"Bez telefonu 30 min przed snem",cat:"DISCIPLINE",weight:7,money:0},
+{id:10,icon:"💰",name:"Bez niepotrzebnego zakupu",cat:"DISCIPLINE",weight:6,money:20}
+];
+let data=JSON.parse(localStorage.getItem(KEY)||"null")||{habits:defaultHabits,done:{},steps:{},saved:{},goal:{name:"Mój cel",amount:1000}};
+function save(){localStorage.setItem(KEY,JSON.stringify(data))}
+function dayKey(d=new Date()){return d.toISOString().slice(0,10)}
+function isDone(id){return !!data.done[dayKey()+"_"+id]}
+function toggle(id){let k=dayKey()+"_"+id;if(data.done[k])delete data.done[k];else data.done[k]=true;save();render()}
+function score(){let total=data.habits.reduce((a,h)=>a+h.weight,0);let got=data.habits.filter(h=>isDone(h.id)).reduce((a,h)=>a+h.weight,0);let stepBonus=Math.min(10,(data.steps[dayKey()]||0)/1000);return total?Math.min(100,Math.round((got/total)*90+stepBonus)):0}
+function todaySaved(){return data.habits.filter(h=>isDone(h.id)).reduce((a,h)=>a+(+h.money||0),0)}
+function monthSaved(){let now=new Date(),m=now.toISOString().slice(0,7),sum=0;Object.keys(data.saved).forEach(k=>{if(k.startsWith(m))sum+=data.saved[k]});Object.keys(data.done).forEach(k=>{let [d,id]=k.split("_");if(d.startsWith(m)){let h=data.habits.find(x=>x.id==id);if(h)sum+=+h.money||0}});return sum}
+function render(){
+document.getElementById("date").textContent=new Intl.DateTimeFormat("pl-PL",{weekday:"long",day:"numeric",month:"long"}).format(new Date());
+let s=score();document.getElementById("score").textContent=s;document.getElementById("ring").style.setProperty("--p",s);
+document.getElementById("scoreTitle").textContent=s>=85?"🔥 Świetny dzień":s>=65?"💪 Dobry kierunek":s>=40?"⚡ Rozkręcamy się":"🚀 Zaczynamy";
+document.getElementById("scoreDesc").textContent=s>=85?"Jesteś dziś w świetnej formie.":s>=65?"Jeszcze kilka małych decyzji i będzie świetnie.":"Każdy odhaczony nawyk poprawia wynik.";
+document.getElementById("steps").textContent=(data.steps[dayKey()]||0).toLocaleString("pl-PL");
+document.getElementById("saved").textContent=todaySaved().toFixed(0)+" zł";
+let done=data.habits.filter(h=>isDone(h.id)).length;document.getElementById("doneCount").textContent=done+"/"+data.habits.length;
+document.getElementById("habitList").innerHTML=data.habits.map(h=>`<div class="habit"><div class="ico">${h.icon||"✓"}</div><div class="habitname"><b>${h.name}</b><small>${h.cat} · +${h.weight} pkt${h.money?` · +${h.money} zł`:""}</small></div><button class="check ${isDone(h.id)?"done":""}" onclick="toggle(${h.id})">${isDone(h.id)?"✓":""}</button></div>`).join("");
+document.getElementById("allHabits").innerHTML=data.habits.map(h=>`<div class="moneyrow"><span>${h.icon||"✓"} ${h.name}</span><b>${h.weight} pkt</b></div>`).join("");
+let ms=monthSaved();document.getElementById("monthMoney").textContent=ms.toFixed(0)+" zł";let goal=data.goal.amount||1;document.getElementById("goalLabel").textContent=ms.toFixed(0)+" / "+goal+" zł";document.getElementById("goalBar").style.width=Math.min(100,ms/goal*100)+"%";
+let cats={};data.habits.filter(h=>h.money).forEach(h=>{if(isDone(h.id))cats[h.name]=(cats[h.name]||0)+h.money});document.getElementById("moneyBreakdown").innerHTML=Object.entries(cats).map(([n,v])=>`<div class="moneyrow"><span>${n}</span><b>+${v} zł</b></div>`).join("")||'<p class="note">Odhacz nawyki z przypisaną oszczędnością.</p>';
+renderChart();
+}
+function renderChart(){let el=document.getElementById("chart"),arr=[];for(let i=6;i>=0;i--){let d=new Date();d.setDate(d.getDate()-i);let k=d.toISOString().slice(0,10);let total=data.habits.reduce((a,h)=>a+h.weight,0)||1;let got=data.habits.filter(h=>data.done[k+"_"+h.id]).reduce((a,h)=>a+h.weight,0);let v=Math.round(got/total*100);arr.push({k,v})}el.innerHTML=arr.map(x=>`<div class="barwrap"><div class="bar" style="height:${Math.max(4,x.v)}%"></div><small>${x.k.slice(8)}</small></div>`).join("")}
+function show(id,btn){document.querySelectorAll(".view").forEach(x=>x.classList.remove("active"));document.getElementById(id).classList.add("active");document.querySelectorAll(".nav button").forEach(x=>x.classList.remove("active"));btn.classList.add("active");render()}
+document.getElementById("habitForm").addEventListener("submit",e=>{e.preventDefault();let h={id:Date.now(),icon:"✨",name:hName.value,cat:hCat.value,weight:+hWeight.value||5,money:+hMoney.value||0};data.habits.push(h);save();e.target.reset();hWeight.value=8;hMoney.value=0;render()});
+function saveSteps(){data.steps[dayKey()]=Math.max(0,+document.getElementById("stepInput").value||0);save();render();alert("Kroki zapisane.");}
+function saveGoal(){data.goal={name:goalName.value||"Mój cel",amount:+goalAmount.value||1000};save();render();alert("Cel zapisany.");}
+function resetData(){if(confirm("Wyczyścić dane beta?")){localStorage.removeItem(KEY);location.reload()}}
+render();
+</script>
+</body></html>
